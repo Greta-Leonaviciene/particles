@@ -1,0 +1,5 @@
+train: ../data/train/images
+val: ../data/valid/images
+
+nc: 5
+names: ['Defective', 'Speckled', 'Beaded', "Clear", 'Unknown']
