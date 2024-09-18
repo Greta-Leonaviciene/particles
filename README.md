@@ -8,7 +8,13 @@ The raw data consists of bright-field microscopy images with dimensions of (1080
 Figure 1. Tile generation from microscopy image. Using a sliding window of size 320 x 320 pixels and a stride of 220 pixels (except for the last tile in each row and column), 45 tiles were generated from each image.
 
 #### Data annotation
-After generating the training and validation tiles, they were annotated using the CVAT tool. A total of 5 classes were created: ["Defective", "Speckled", "Beaded", "Clear", "Unknown"].
+After generating the training and validation tiles, they were annotated using the CVAT tool. A total of 5 classes were created: ["Defective", "Speckled", "Beaded", "Clear", "Unknown"]. A summary of the training and validation data annotation is provided below.
+
+![Example Image](images/training_cvat.png)
+Figure 2. Annotated data for training process.
+
+![Example Image](images/validation_cvat.png)
+Figure 3. Annotated data for validation process.
 
 #### YOLO model training
 For the object detection and classification task, YOLOv5 from the Ultralytics GitHub repository was used. Due to the limited amount of data, transfer learning was applied, conducting 200 epochs of training on top of the pre-trained model (after the training process the best model instead of last model was selected).
@@ -24,14 +30,14 @@ Among the various experiments performed, the best results were obtained using th
 Note that all other parameters remained the same.
 
 ![Example Image](images/val_batch0_pred.jpg)
-Figure 2. One batch validation tiles with predicted bounding boxes and labels.
+Figure 4. One batch validation tiles with predicted bounding boxes and labels.
 
 #### Tile reconstruction and inference using whole images
 Although the training and validation processes were performed using tiles, image-wide results will be required during inference. To achieve this, after obtaining model predictions, the tiles were reconstructed into the original image, and the labels/predictions were processed to match the original image format. Before conducting this workflow on the testing dataset, this process was optimized on the validation dataset. The detailed steps are listed below:
 1) Load validation tiles and labels into a dictionary format.
 2) Apply the YOLOv5 model on the tiles to get predictions.
-3) Process the predictions: remove bounding boxes with a low objectness score (threshold 0.8), get the class index with the highest probability for each box, convert [x_center, y_center, width, height] to [x_min, y_min, x_max, y_max], and return [x_min, y_min, x_max, y_max, confidence, class_index]
-4) Load processed predictions into the existing dictionary format. Data standard is outlined below:
+3) Process the predictions: remove bounding boxes with a low objectness score (threshold 0.8), get the class index with the highest probability for each box, convert [x_center, y_center, width, height] to [x_min, y_min, x_max, y_max], and return [x_min, y_min, x_max, y_max, confidence, class_index].
+4) Add processed predictions into the existing dictionary format. Data standard is outlined below:
 ```python
 tiles_with_labels_predictions = {
     "image_0_tile_0": {
@@ -53,10 +59,10 @@ tiles_with_labels_predictions = {
 Note that all custom functions used for this part are located in the `util` folder.
 
 ![Example Image](images/0_pred.png)
-Figure 3. Example of a reconstructed image with corresponding predictions.
+Figure 5. Example of a reconstructed image with corresponding predictions.
 
 #### Running model inference
 To apply the trained and validated model for routine particle detection and classification tasks, use files provided in the `Validation_Detection` folder, specifically `detection.ipynb`.
 
 ![Example Image](images/detection.png)
-Figure 4. Example of the final detection output with added statistics.
+Figure 6. Example of the final detection output with added statistics.
