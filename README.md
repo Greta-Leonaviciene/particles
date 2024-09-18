@@ -27,17 +27,18 @@ Among the various experiments performed, the best results were obtained using th
 * albumentations: OFF
 * frozen layers: NONE 
 
-Note that all other parameters remained the same.
+Note that all other parameters remained the same. Summary of the performed experiments is provided below:
+![Example Image](images/experiments.png)
 
 ![Example Image](images/val_batch0_pred.jpg)
-Figure 4. One batch validation tiles with predicted bounding boxes and labels.
+Figure 4. A batch of validation tiles with predicted bounding boxes and classes. The results were obtained from the second experiment listed in the table above.
 
-#### Tile reconstruction and inference using whole images
+#### Image reassembly from tiles
 Although the training and validation processes were performed using tiles, image-wide results will be required during inference. To achieve this, after obtaining model predictions, the tiles were reconstructed into the original image, and the labels/predictions were processed to match the original image format. Before conducting this workflow on the testing dataset, this process was optimized on the validation dataset. The detailed steps are listed below:
-1) Load validation tiles and labels into a dictionary format.
+1) Load validation tiles and labels into a dictionary.
 2) Apply the YOLOv5 model on the tiles to get predictions.
 3) Process the predictions: remove bounding boxes with a low objectness score (threshold 0.8), get the class index with the highest probability for each box, convert [x_center, y_center, width, height] to [x_min, y_min, x_max, y_max], and return [x_min, y_min, x_max, y_max, confidence, class_index].
-4) Add processed predictions into the existing dictionary format. Data standard is outlined below:
+4) Add processed predictions into the existing dictionary. Data standard is outlined below:
 ```python
 tiles_with_labels_predictions = {
     "image_0_tile_0": {
@@ -56,7 +57,7 @@ tiles_with_labels_predictions = {
 5) Reconstruct the image from tiles and remove overlapping labels/predictions using NMS. After this step, each reconstructed image with plotted labels and predictions is saved to the output directory. In addition, all information is saved in a JSON file.
 6) Use the information from the JSON file to calculate precision and recall for each image. Additionally, provide the counts of each assigned class.
 
-Note that all custom functions used for this part are located in the `util` folder.
+Image reconstruction code is provided in the `Validation_Detection` folder `valid_custom.ipynb` notebook. Note that all functions used for this part are located in the `util` folder.
 
 ![Example Image](images/0_pred.png)
 Figure 5. Example of a reconstructed image with corresponding predictions.
